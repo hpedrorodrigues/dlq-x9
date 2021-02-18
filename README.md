@@ -18,8 +18,7 @@ docker run -it \
   -e AWS_REGION='<region>' \
   ghcr.io/hpedrorodrigues/dlq-x9:0.1.0 \
     --slack.webhook-url '<url>' \
-    --sqs.dlq-name '<name>' \
-    --internal.worker-pool '<size>'
+    --sqs.dlq-name '<name>'
 ```
 
 You can also run this project in your Kubernetes cluster using the manifest

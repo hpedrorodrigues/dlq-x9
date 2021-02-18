@@ -26,7 +26,7 @@ type configuration struct {
 func LoadConfiguration(log *logrus.Logger) *configuration {
   pflag.String("slack.webhook-url", "", "slack webhook url")
   pflag.String("sqs.dlq-name", "", "sqs dead-letter queue name")
-  pflag.Int("internal.worker-pool", 10, "the size of the worker pool")
+  pflag.Int("internal.worker-pool", 1, "the size of the worker pool")
   pflag.Parse()
 
   if err := viper.BindPFlags(pflag.CommandLine); err != nil {
