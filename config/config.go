@@ -30,7 +30,7 @@ func LoadConfiguration(log *logrus.Logger) *configuration {
   pflag.Parse()
 
   if err := viper.BindPFlags(pflag.CommandLine); err != nil {
-    log.Fatalf("Fatal error parsing flags: %v\n", err)
+    log.Fatalf("Fatal error parsing flags: %v", err)
   }
 
   viper.SetConfigName(FileName)
@@ -39,13 +39,13 @@ func LoadConfiguration(log *logrus.Logger) *configuration {
 
   if err := viper.ReadInConfig(); err != nil {
     if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-      log.Fatalf("Fatal error reading configuration file: %v\n", err)
+      log.Fatalf("Fatal error reading configuration file: %v", err)
     }
   }
 
   var config *configuration
   if err := viper.Unmarshal(&config); err != nil {
-    log.Fatalf("Fatal error decoding file: %v\n", err)
+    log.Fatalf("Fatal error decoding file: %v", err)
   }
 
   if config.Slack.WebhookUrl == "" {

@@ -25,7 +25,7 @@ func (c *consumer) Consume(fn func(message *sqs.Message) error) {
 }
 
 func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
-  c.log.Infof("Starting worker: %d\n", id)
+  c.log.Infof("Starting worker: %d", id)
 
   sess := session.Must(session.NewSessionWithOptions(session.Options{
     SharedConfigState: session.SharedConfigEnable,
@@ -37,7 +37,7 @@ func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
     QueueName: aws.String(c.queueName),
   })
   if err != nil {
-    c.log.Fatalf("Fatal error retrieving queue URL: %v\n", err)
+    c.log.Fatalf("Fatal error retrieving queue URL: %v", err)
   }
 
   queueUrl := result.QueueUrl
@@ -54,7 +54,7 @@ func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
       MaxNumberOfMessages: aws.Int64(1),
     })
     if err != nil {
-      c.log.Errorf("Error retrieving messages: %v\n", err)
+      c.log.Errorf("Error retrieving messages: %v", err)
       continue
     }
 
@@ -72,7 +72,7 @@ func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
           ReceiptHandle: message.ReceiptHandle,
         })
         if err != nil {
-          c.log.Errorf("Error deleting message (%s): %v\n", *m.MessageId, err)
+          c.log.Errorf("Error deleting message (%s): %v", *m.MessageId, err)
           return
         }
       }(message)
