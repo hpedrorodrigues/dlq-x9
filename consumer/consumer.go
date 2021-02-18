@@ -52,10 +52,9 @@ func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
       },
       QueueUrl:            queueUrl,
       MaxNumberOfMessages: aws.Int64(1),
-      VisibilityTimeout:   aws.Int64(60),
     })
     if err != nil {
-      c.log.Errorf("Fatal error retrieving messages: %v\n", err)
+      c.log.Errorf("Error retrieving messages: %v\n", err)
       continue
     }
 
@@ -73,7 +72,7 @@ func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
           ReceiptHandle: message.ReceiptHandle,
         })
         if err != nil {
-          c.log.Errorf("Fatal error deleting message (%s): %v\n", *m.MessageId, err)
+          c.log.Errorf("Error deleting message (%s): %v\n", *m.MessageId, err)
           return
         }
       }(message)
