@@ -11,21 +11,26 @@ import (
 type consumer struct {
   queueName  string
   workerPool int
-  log        *logrus.Logger
 }
 
-func New(queueName string, workerPool int, log *logrus.Logger) *consumer {
-  return &consumer{queueName, workerPool, log}
+func New(queueName string, workerPool int) *consumer {
+  return &consumer{queueName, workerPool}
 }
 
-func (c *consumer) Consume(fn func(message *sqs.Message) error) {
+func (c *consumer) Consume(
+  log *logrus.Logger,
+  fn func(message *sqs.Message, log *logrus.Entry) error,
+) {
   for w := 1; w <= c.workerPool; w++ {
-    go c.worker(w, fn)
+    go c.worker(fn, log.WithField("worker", w))
   }
 }
 
-func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
-  c.log.Infof("Starting worker: %d", id)
+func (c *consumer) worker(
+  fn func(message *sqs.Message, log *logrus.Entry) error,
+  log *logrus.Entry,
+) {
+  log.Info("Starting")
 
   sess := session.Must(session.NewSessionWithOptions(session.Options{
     SharedConfigState: session.SharedConfigEnable,
@@ -37,7 +42,7 @@ func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
     QueueName: aws.String(c.queueName),
   })
   if err != nil {
-    c.log.Fatalf("Fatal error retrieving queue URL: %v", err)
+    log.Fatalf("Fatal error retrieving queue URL: %v", err)
   }
 
   queueUrl := result.QueueUrl
@@ -54,7 +59,7 @@ func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
       MaxNumberOfMessages: aws.Int64(1),
     })
     if err != nil {
-      c.log.Errorf("Error retrieving messages: %v", err)
+      log.Errorf("Error retrieving messages: %v", err)
       continue
     }
 
@@ -63,7 +68,8 @@ func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
       wg.Add(1)
       go func(m *sqs.Message) {
         defer wg.Done()
-        if err := fn(m); err != nil {
+        if err := fn(m, log); err != nil {
+          log.Errorf("Error processing message (%s): %v", *m.MessageId, err)
           return
         }
 
@@ -72,7 +78,7 @@ func (c *consumer) worker(id int, fn func(message *sqs.Message) error) {
           ReceiptHandle: message.ReceiptHandle,
         })
         if err != nil {
-          c.log.Errorf("Error deleting message (%s): %v", *m.MessageId, err)
+          log.Errorf("Error deleting message (%s): %v", *m.MessageId, err)
           return
         }
       }(message)

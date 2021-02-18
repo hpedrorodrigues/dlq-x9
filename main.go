@@ -13,14 +13,25 @@ import (
 )
 
 func main() {
-  var log = logrus.New()
+  var logger = logrus.New()
 
-  conf := config.LoadConfiguration(log)
-  cons := consumer.New(conf.SQS.DLQName, conf.Internal.WorkerPool, log)
+  conf := config.LoadConfiguration(logger)
 
-  log.Info("DLQ-X9")
+  if conf.Internal.StructuredLogs {
+    logger.SetFormatter(&logrus.JSONFormatter{})
+  } else {
+    logger.SetFormatter(&logrus.TextFormatter{
+      FullTimestamp: true,
+    })
+  }
 
-  cons.Consume(func(message *sqs.Message) error {
+  cons := consumer.New(conf.SQS.DLQName, conf.Internal.WorkerPool)
+
+  logger.Info("DLQ-X9")
+
+  cons.Consume(logger, func(message *sqs.Message, log *logrus.Entry) error {
+    log.Infof("Sending message to Slack channel [Id: %s]", *message.MessageId)
+
     text := fmt.Sprintf(
       "Hey, a new message was pusblished to the DLQ `%s` (Id:`%s`): ```%s```",
       conf.SQS.DLQName, *message.MessageId, *message.Body,

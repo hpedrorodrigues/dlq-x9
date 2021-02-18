@@ -19,7 +19,8 @@ type configuration struct {
     DLQName string `mapstructure:"dlq-name"`
   }
   Internal struct {
-    WorkerPool int `mapstructure:"worker-pool"`
+    WorkerPool     int  `mapstructure:"worker-pool"`
+    StructuredLogs bool `mapstructure:"structured-logs"`
   }
 }
 
@@ -27,6 +28,7 @@ func LoadConfiguration(log *logrus.Logger) *configuration {
   pflag.String("slack.webhook-url", "", "slack webhook url")
   pflag.String("sqs.dlq-name", "", "sqs dead-letter queue name")
   pflag.Int("internal.worker-pool", 1, "the size of the worker pool")
+  pflag.Bool("internal.structured-logs", false, "print logs using json format")
   pflag.Parse()
 
   if err := viper.BindPFlags(pflag.CommandLine); err != nil {
