@@ -1,7 +1,7 @@
 # DLQ X9
 
 DLQ-X9 is a straightforward application that sends a message in a Slack channel
-every time it detects a new message in a DLQ.
+every time it detects a new message in an SQS DLQ.
 
 It's quite useful for debugging your application or messaging system.
 
