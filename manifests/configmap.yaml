@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dlq-x9
+  namespace: dlq-x9
+  labels:
+    app: dlq-x9
+data:
+  X9_SLACK_WEBHOOK_URL: "<webhook-url>"
+  X9_SQS_DLQ_NAME: "<dlq-name>"
+  X9_INTERNAL_WORKER_POOL: "<pool-size>"

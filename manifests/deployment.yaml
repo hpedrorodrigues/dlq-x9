@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dlq-x9
+  namespace: dlq-x9
+  labels:
+    app: dlq-x9
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dlq-x9
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      namespace: dlq-x9
+      labels:
+        app: dlq-x9
+    spec:
+      containers:
+        - name: dlq-x9
+          image: ghcr.io/hpedrorodrigues/dlq-x9:latest
+          imagePullPolicy: Always
+          command:
+            - /dlq-x9
+          args:
+            - --slack.webhook-url=$(X9_SLACK_WEBHOOK_URL)
+            - --sqs.dlq-name=$(X9_SQS_DLQ_NAME)
+            - --internal.worker-pool=$(X9_INTERNAL_WORKER_POOL)
+          envFrom:
+            - configMapRef:
+                name: dlq-x9
+            - secretRef:
+                name: dlq-x9
+          resources:
+            limits:
+              memory: 50Mi
+              cpu: 100m
+            requests:
+              memory: 50Mi
+              cpu: 100m

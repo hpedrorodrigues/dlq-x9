@@ -6,3 +6,5 @@
 
 *.iml
 config.yaml
+manifests/configmap.yaml
+manifests/secret.yaml
