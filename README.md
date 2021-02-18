@@ -21,3 +21,8 @@ docker run -it \
     --sqs.dlq-name '<name>' \
     --internal.worker-pool '<size>'
 ```
+
+You can also run this project in your Kubernetes cluster using the manifest
+files inside the `manifests` folder.
+
+Edit the configuration files there, apply them and voilà.
