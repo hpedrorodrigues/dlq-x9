@@ -22,7 +22,7 @@ func main() {
 
   cons.Consume(func(message *sqs.Message) error {
     text := fmt.Sprintf(
-      "Hey, Amazon SQS moved a new message to the DLQ `%s` (Id:`%s`): ```%s```",
+      "Hey, a new message was pusblished to the DLQ `%s` (Id:`%s`): ```%s```",
       conf.SQS.DLQName, *message.MessageId, *message.Body,
     )
     return slack.PostWebhook(conf.Slack.WebhookUrl, &slack.WebhookMessage{Text: text})
