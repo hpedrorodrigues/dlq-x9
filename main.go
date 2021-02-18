@@ -16,9 +16,9 @@ func main() {
   var log = logrus.New()
 
   conf := config.LoadConfiguration(log)
-  cons := consumer.New(conf.SQS.DLQName, conf.X9.WorkerPool, log)
+  cons := consumer.New(conf.SQS.DLQName, conf.Internal.WorkerPool, log)
 
-  log.Info("Starting DLQ-X9")
+  log.Info("DLQ-X9")
 
   cons.Consume(func(message *sqs.Message) error {
     text := fmt.Sprintf(

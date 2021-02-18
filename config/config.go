@@ -2,7 +2,13 @@ package config
 
 import (
   "github.com/sirupsen/logrus"
+  "github.com/spf13/pflag"
   "github.com/spf13/viper"
+)
+
+const (
+  FileName   = "config"
+  FileFormat = "yaml"
 )
 
 type configuration struct {
@@ -12,29 +18,33 @@ type configuration struct {
   SQS struct {
     DLQName string `mapstructure:"dlq-name"`
   }
-  X9 struct {
+  Internal struct {
     WorkerPool int `mapstructure:"worker-pool"`
   }
 }
 
 func LoadConfiguration(log *logrus.Logger) *configuration {
-  viper.SetConfigName("config")
-  viper.SetConfigType("yaml")
+  pflag.String("slack.webhook-url", "", "slack webhook url")
+  pflag.String("sqs.dlq-name", "", "sqs dead-letter queue name")
+  pflag.Int("internal.worker-pool", 10, "the size of the worker pool")
+  pflag.Parse()
+
+  if err := viper.BindPFlags(pflag.CommandLine); err != nil {
+    log.Fatalf("Fatal error parsing flags: %v\n", err)
+  }
+
+  viper.SetConfigName(FileName)
+  viper.SetConfigType(FileFormat)
   viper.AddConfigPath(".")
 
   if err := viper.ReadInConfig(); err != nil {
-    if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-      log.Fatalf("Configuration file not found: %v\n", err)
-    } else {
+    if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
       log.Fatalf("Fatal error reading configuration file: %v\n", err)
     }
   }
 
-  viper.SetDefault("x9.worker-pool", 10)
-
   var config *configuration
-  err := viper.Unmarshal(&config)
-  if err != nil {
+  if err := viper.Unmarshal(&config); err != nil {
     log.Fatalf("Fatal error decoding file: %v\n", err)
   }
 
@@ -44,6 +54,10 @@ func LoadConfiguration(log *logrus.Logger) *configuration {
 
   if config.SQS.DLQName == "" {
     log.Fatal("Empty dead-letter queue name")
+  }
+
+  if config.Internal.WorkerPool < 1 {
+    log.Fatal("Invalid worker-pool size")
   }
 
   return config
