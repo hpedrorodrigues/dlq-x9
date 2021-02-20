@@ -7,9 +7,24 @@ It's quite useful for debugging your application or messaging system.
 
 **Note**: Every time a message is sent to Slack, it'll be deleted from the queue.
 
+## Configuration
+
+DLQ-X9 supports a YAML file and CLI arguments to load configurations and run
+smoothly.
+
+Example file:
+```yaml
+slack:
+  webhook-url: "<url>"
+sqs:
+  dlq-name: "<name>"
+```
+
 ## Running
 
-You can run this project using the available Docker image.
+### Docker
+
+You can run this project using the available Docker image:
 
 ```bash
 docker run -it \
@@ -20,6 +35,8 @@ docker run -it \
     --slack.webhook-url '<url>' \
     --sqs.dlq-name '<name>'
 ```
+
+### Kubernetes
 
 You can also run this project in your Kubernetes cluster using the manifest
 files inside the `manifests` folder.
